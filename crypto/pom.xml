@@ -17,6 +17,7 @@
 		<module>crypto-sm</module>
 		<module>crypto-binary-protocal</module>
 		<module>crypto-ca</module>
+		<module>crypto-chameleon</module>
 	</modules>
 
 </project>
