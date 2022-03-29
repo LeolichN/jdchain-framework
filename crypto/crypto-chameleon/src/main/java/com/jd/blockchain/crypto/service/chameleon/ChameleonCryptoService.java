@@ -1,4 +1,4 @@
-package com.jd.blockchain.crypto.service.classic.chameleon;
+package com.jd.blockchain.crypto.service.chameleon;
 
 import com.jd.blockchain.crypto.*;
 import com.jd.blockchain.crypto.base.DefaultCryptoEncoding;
@@ -15,7 +15,7 @@ import java.util.List;
  * @create 2022-03-21 16:33
  * @since 0.1.0
  **/
-@NamedProvider("CHAMELEON")
+@NamedProvider("CHAMELEON-SOFTWARE")
 public class ChameleonCryptoService implements CryptoService{
 
     public static final SM3NewHashFunction SM3_NEW_HASH_FUNCTION = new SM3NewHashFunction();

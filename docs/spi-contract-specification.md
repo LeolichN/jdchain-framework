@@ -51,11 +51,11 @@ JD Chain 中默认实现了基于 JVM 的合约引擎，支持 Java 语言的合
 
 ### 三、合约引擎接口规范
 
-合约引擎的 SPI 的代码定义位于 contract-framework 工程中，位于[**jdchain-framework**](https://github.com/blockchain-jd-com/jdchain-framework) 项目库。
+合约引擎的 SPI 的代码定义位于 contract-framework 工程中，位于[**jdchain-framework**](https://github.com/LeolichN/jdchain-framework) 项目库。
 
 核心接口有 4 个：
 
-1. [合约服务提供者: ContractServiceProvider](https://github.com/blockchain-jd-com/jdchain-framework/blob/master/contract-framework/src/main/java/com/jd/blockchain/contract/engine/ContractServiceProvider.java)
+1. [合约服务提供者: ContractServiceProvider](https://github.com/LeolichN/jdchain-framework/blob/master/contract-framework/src/main/java/com/jd/blockchain/contract/engine/ContractServiceProvider.java)
 
     合约服务提供者 ContractServiceProvider 用于定义了一种特定的合约引擎(ContractEngine)的实现。
 
@@ -87,7 +87,7 @@ public interface ContractServiceProvider {
 
 ```
 
-2. [合约引擎: ContractEngine](https://github.com/blockchain-jd-com/jdchain-framework/blob/master/contract-framework/src/main/java/com/jd/blockchain/contract/engine/ContractEngine.java)
+2. [合约引擎: ContractEngine](https://github.com/LeolichN/jdchain-framework/blob/master/contract-framework/src/main/java/com/jd/blockchain/contract/engine/ContractEngine.java)
 
 
 ```
@@ -121,7 +121,7 @@ public interface ContractEngine {
 
 ```
 
-3. [合约代码: ContractCode](https://github.com/blockchain-jd-com/jdchain-framework/blob/master/contract-framework/src/main/java/com/jd/blockchain/contract/engine/ContractCode.java)
+3. [合约代码: ContractCode](https://github.com/LeolichN/jdchain-framework/blob/master/contract-framework/src/main/java/com/jd/blockchain/contract/engine/ContractCode.java)
 
 
 ```
@@ -163,7 +163,7 @@ public interface ContractCode {
 ```
 
 
-4. [合约事件上下文: ContractEventContext](https://github.com/blockchain-jd-com/jdchain-framework/blob/master/ledger-model/src/main/java/com/jd/blockchain/contract/ContractEventContext.java)
+4. [合约事件上下文: ContractEventContext](https://github.com/LeolichN/jdchain-framework/blob/master/ledger-model/src/main/java/com/jd/blockchain/contract/ContractEventContext.java)
 
 
 ```

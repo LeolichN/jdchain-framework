@@ -1,4 +1,4 @@
-package com.jd.blockchain.crypto.service.classic.chameleon;
+package com.jd.blockchain.crypto.service.chameleon;
 
 import com.jd.blockchain.crypto.CryptoAlgorithm;
 import com.jd.blockchain.crypto.base.CryptoAlgorithmDefinition;
