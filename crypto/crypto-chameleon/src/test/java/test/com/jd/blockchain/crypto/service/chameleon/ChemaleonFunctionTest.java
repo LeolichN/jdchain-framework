@@ -19,13 +19,13 @@ public class ChemaleonFunctionTest {
         assertEquals(signatureFunction.getAlgorithm().name(), algorithm.name());
         assertEquals(signatureFunction.getAlgorithm().code(), algorithm.code());
 
-        algorithm = Crypto.getAlgorithm("sM2");
+        algorithm = Crypto.getAlgorithm("SMw");
         assertNotNull(algorithm);
 
         assertEquals(signatureFunction.getAlgorithm().name(), algorithm.name());
         assertEquals(signatureFunction.getAlgorithm().code(), algorithm.code());
 
-        algorithm = Crypto.getAlgorithm("sm22");
+        algorithm = Crypto.getAlgorithm("SM3");
         assertNull(algorithm);
     }
 }

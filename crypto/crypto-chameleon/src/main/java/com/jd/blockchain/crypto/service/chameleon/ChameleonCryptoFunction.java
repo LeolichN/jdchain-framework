@@ -101,7 +101,7 @@ public class ChameleonCryptoFunction implements SignatureFunction, CASignatureFu
 
     @Override
     public CryptoAlgorithm getAlgorithm() {
-        return null;
+        return CHAMELEON;
     }
 
     @Override
@@ -116,6 +116,8 @@ public class ChameleonCryptoFunction implements SignatureFunction, CASignatureFu
 
     @Override
     public <T extends CryptoBytes> boolean support(Class<T> cryptoDataType, byte[] encodedCryptoBytes) {
-        return false;
+        return (SignatureDigest.class == cryptoDataType && supportDigest(encodedCryptoBytes))
+                || (PubKey.class == cryptoDataType && supportPubKey(encodedCryptoBytes))
+                || (PrivKey.class == cryptoDataType && supportPrivKey(encodedCryptoBytes));
     }
 }
