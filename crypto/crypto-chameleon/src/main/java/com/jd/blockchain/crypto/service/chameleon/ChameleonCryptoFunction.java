@@ -1,11 +1,22 @@
 package com.jd.blockchain.crypto.service.chameleon;
 
 import com.jd.blockchain.crypto.*;
+import com.jd.blockchain.crypto.base.AlgorithmUtils;
+import com.jd.blockchain.crypto.base.DefaultCryptoEncoding;
+import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import utils.crypto.chameleon.ChameleonPrivateKeyParameters;
+import utils.crypto.chameleon.ChameleonPublicKeyParameters;
+import utils.crypto.chameleon.ChameleonUtils;
 
+import java.lang.reflect.Array;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
+
+import static com.jd.blockchain.crypto.CryptoKeyType.PRIVATE;
+import static com.jd.blockchain.crypto.CryptoKeyType.PUBLIC;
 
 /**
  * @author tsao
@@ -15,6 +26,15 @@ import java.security.cert.X509Certificate;
  **/
 public class ChameleonCryptoFunction implements SignatureFunction, CASignatureFunction {
     private static final CryptoAlgorithm CHAMELEON = ChameleonAlgorithm.CHAMELEON;
+    private static final int ECPOINT_SIZE = 65;
+    private static final int PRIVKEY_SIZE = 32;
+    private static final int SIGNATUREDIGEST_SIZE = 64;
+    private static final int HASHDIGEST_SIZE = 32;
+
+
+    private static final int PUBKEY_LENGTH = CryptoAlgorithm.CODE_SIZE + CryptoKeyType.TYPE_CODE_SIZE + ECPOINT_SIZE;
+    private static final int PRIVKEY_LENGTH = CryptoAlgorithm.CODE_SIZE + CryptoKeyType.TYPE_CODE_SIZE + PRIVKEY_SIZE;
+    private static final int SIGNATUREDIGEST_LENGTH = CryptoAlgorithm.CODE_SIZE + SIGNATUREDIGEST_SIZE;
 
     ChameleonCryptoFunction() {
     }
@@ -36,32 +56,47 @@ public class ChameleonCryptoFunction implements SignatureFunction, CASignatureFu
 
     @Override
     public boolean supportPrivKey(byte[] privKeyBytes) {
-        return false;
+        return privKeyBytes.length == PRIVKEY_LENGTH && AlgorithmUtils.match(CHAMELEON, privKeyBytes)
+                && privKeyBytes[CryptoAlgorithm.CODE_SIZE] == PRIVATE.CODE;
     }
 
     @Override
     public PrivKey resolvePrivKey(byte[] privKeyBytes) {
-        return null;
+        if (supportPrivKey(privKeyBytes)) {
+            return DefaultCryptoEncoding.createPrivKey(CHAMELEON.code(), privKeyBytes);
+        } else {
+            throw new CryptoException("privKeyBytes are invalid!");
+        }
     }
 
     @Override
     public boolean supportPubKey(byte[] pubKeyBytes) {
-        return false;
+        // 验证输入字节数组长度=算法标识长度+密钥类型长度+椭圆曲线点长度，密钥数据的算法标识对应SM2算法，并且密钥类型是公钥
+        return pubKeyBytes.length == PUBKEY_LENGTH && AlgorithmUtils.match(CHAMELEON, pubKeyBytes)
+                && pubKeyBytes[CryptoAlgorithm.CODE_SIZE] == PUBLIC.CODE;
     }
 
     @Override
     public PubKey resolvePubKey(byte[] pubKeyBytes) {
-        return null;
+        if (supportPubKey(pubKeyBytes)) {
+            return DefaultCryptoEncoding.createPubKey(CHAMELEON.code(), pubKeyBytes);
+        } else {
+            throw new CryptoException("pubKeyBytes are invalid!");
+        }
     }
 
     @Override
     public boolean supportDigest(byte[] digestBytes) {
-        return false;
+        return digestBytes.length == SIGNATUREDIGEST_LENGTH && AlgorithmUtils.match(CHAMELEON, digestBytes);
     }
 
     @Override
     public SignatureDigest resolveDigest(byte[] digestBytes) {
-        return null;
+        if (supportDigest(digestBytes)) {
+            return DefaultCryptoEncoding.createSignatureDigest(CHAMELEON.code(), digestBytes);
+        } else {
+            throw new CryptoException("digestBytes are invalid!");
+        }
     }
 
     @Override
@@ -106,12 +141,49 @@ public class ChameleonCryptoFunction implements SignatureFunction, CASignatureFu
 
     @Override
     public AsymmetricKeypair generateKeypair() {
-        return null;
+        return generateKeypair(new SecureRandom());
     }
 
     @Override
     public AsymmetricKeypair generateKeypair(byte[] seed) {
-        return null;
+        return generateKeypair(new SecureRandom(seed));
+    }
+
+    public AsymmetricKeypair generateKeypair(SecureRandom random) {
+        // 调用ED25519算法的密钥生成算法生成公私钥对priKey和pubKey，返回密钥对
+        AsymmetricCipherKeyPair keyPair = ChameleonUtils.generateKeyPair(random);
+        ChameleonPrivateKeyParameters privKeyParams = (ChameleonPrivateKeyParameters) keyPair.getPrivate();
+        ChameleonPublicKeyParameters pubKeyParams = (ChameleonPublicKeyParameters) keyPair.getPublic();
+
+        byte[] privKeyBytesK = privKeyParams.getK().toByteArray();
+        byte[] privKeyBytesX = privKeyParams.getX().toByteArray();
+        byte[] privKeyBytes = concat(updateByteArray(privKeyBytesK,32),updateByteArray(privKeyBytesX,32));
+
+        byte[] pubKeyBytesK = pubKeyParams.getK().getEncoded(false);
+        byte[] pubKeyBytesY = pubKeyParams.getY().getEncoded(false);
+        byte[] pubKeyBytes =concat(pubKeyBytesK,pubKeyBytesY);
+
+        PrivKey privKey = DefaultCryptoEncoding.encodePrivKey(CHAMELEON, privKeyBytes);
+        PubKey pubKey = DefaultCryptoEncoding.encodePubKey(CHAMELEON, pubKeyBytes);
+
+        return new AsymmetricKeypair(pubKey, privKey);
+    }
+
+    private byte[] concat(byte[] array1, byte[] array2) {
+        byte[] newArray = (byte[]) Array.newInstance(byte.class, array1.length + array2.length);
+        System.arraycopy(array1, 0, newArray, 0, array1.length);
+        System.arraycopy(array2, 0, newArray, array1.length, array2.length);
+        return newArray;
+    }
+
+    private byte[] updateByteArray(byte[] sourceArray,int arraySize){
+        byte[] finalArray = new byte[arraySize];
+        if (sourceArray.length > arraySize) {
+            System.arraycopy(sourceArray, sourceArray.length - arraySize, finalArray, 0, arraySize);
+        } else {
+            System.arraycopy(sourceArray, 0, finalArray, arraySize - sourceArray.length, sourceArray.length);
+        }
+        return finalArray;
     }
 
     @Override

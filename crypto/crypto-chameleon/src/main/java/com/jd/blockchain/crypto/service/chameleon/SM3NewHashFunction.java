@@ -4,7 +4,7 @@ import com.jd.blockchain.crypto.*;
 import com.jd.blockchain.crypto.base.AlgorithmUtils;
 import com.jd.blockchain.crypto.base.DefaultCryptoEncoding;
 import com.jd.blockchain.crypto.base.EncodedHashDigester;
-import utils.crypto.chameleon.SM3NewUtils;
+import utils.crypto.chameleon.sm3new.SM3NewUtils;
 import utils.security.Hasher;
 
 import java.util.Arrays;
