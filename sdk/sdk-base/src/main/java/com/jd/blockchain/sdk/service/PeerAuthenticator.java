@@ -3,13 +3,11 @@ package com.jd.blockchain.sdk.service;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.jd.blockchain.consensus.ClientCredential;
-import com.jd.blockchain.consensus.ConsensusProvider;
-import com.jd.blockchain.consensus.ConsensusProviders;
-import com.jd.blockchain.consensus.SessionCredential;
+import com.jd.blockchain.consensus.*;
 import com.jd.blockchain.consensus.client.ClientFactory;
 import com.jd.blockchain.crypto.AsymmetricKeypair;
 import com.jd.blockchain.crypto.HashDigest;
+import com.jd.blockchain.ledger.ConsensusTypeEnum;
 import com.jd.blockchain.sdk.AccessSpecification;
 import com.jd.blockchain.sdk.GatewayAuthRequestConfig;
 import com.jd.blockchain.sdk.ManagementHttpService;
@@ -59,6 +57,14 @@ public class PeerAuthenticator {
 				// 加载本地的历史凭证；
 				SessionCredential sessionCredential = credentialProvider
 						.getCredential(ledgerProvider.getKey().toBase58());
+
+				//共识变更后， 检查本地历史凭证是否与共识提供方一致
+				if(sessionCredential != null){
+					if(ConsensusTypeEnum.of(sessionCredential.consensusProviderType()) != provider.getConsensusType()){
+						//provider may be changed
+						sessionCredential = null;
+					}
+				}
 
 				ClientCredential authId = clientFactory.buildCredential(sessionCredential, gatewayKey);
 				authRequest.add(ledgerProvider.getKey(), authId);

@@ -85,6 +85,21 @@ public enum TransactionState {
 	ROLE_DOES_NOT_EXIST((byte) 0x13),
 
 	/**
+	 * 不支持的HASH算法
+	 * */
+	UNSUPPORTED_HASH_ALGORITHM((byte)0x14),
+
+	/**
+	 * 合约方法不存在；
+	 */
+	CONTRACT_METHOD_NOT_FOUND((byte) 0x15),
+
+	/**
+	 * 合约参数错误；
+	 */
+	CONTRACT_PARAMETER_ERROR((byte) 0x16),
+
+	/**
 	 * 由于在错误的账本上执行交易而被忽略；
 	 */
 	IGNORED_BY_WRONG_LEDGER((byte) 0x40),

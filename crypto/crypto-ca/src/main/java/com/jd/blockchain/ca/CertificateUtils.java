@@ -20,6 +20,7 @@ import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.bouncycastle.util.io.pem.PemReader;
 import sun.security.x509.X509CertImpl;
 import utils.io.FileUtils;
 
@@ -72,7 +73,6 @@ public class CertificateUtils {
     static JcaPEMKeyConverter converter;
 
     static {
-        Security.removeProvider("SunEC");
         Security.addProvider(new BouncyCastleProvider());
         converter = new JcaPEMKeyConverter();
         identifierMap.put("1.2.840.10045.2.1" + "1.2.840.10045.3.1.7", "ECDSA");

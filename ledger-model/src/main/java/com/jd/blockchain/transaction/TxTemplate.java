@@ -104,7 +104,13 @@ public class TxTemplate implements TransactionTemplate {
 	}
 
 	@Override
-	public ConsensusSettingsUpdateOperationBuilder settings() {
+	public ConsensusSettingsUpdateOperationBuilder consensus() {
+		stateManager.operate();
+		return txBuilder.consensus();
+	}
+
+	@Override
+	public SettingsOperationBuilder settings() {
 		stateManager.operate();
 		return txBuilder.settings();
 	}

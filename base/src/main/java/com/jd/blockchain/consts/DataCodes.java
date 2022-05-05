@@ -95,6 +95,11 @@ public interface DataCodes {
     int TX_OP_CONSENSUS_SETTINGS_UPDATE = 0x390;
     int TX_OP_META_CA_UPDATE = 0x391;
 
+    int TX_OP_CONSENSUS_RECONFIG = 0x392;
+
+    // switch crypto algo
+    int TX_OP_HASH_ALGORITHM_UPDATE = 0x393;
+
     // enum types of permissions;
     int ENUM_TX_PERMISSION = 0x401;
     int ENUM_LEDGER_PERMISSION = 0x402;
@@ -158,8 +163,10 @@ public interface DataCodes {
 
     // contract related;
     int CONTRACT_ACCOUNT_HEADER = 0xA00;
+    int CONTRACT_RUNTIME_TYPE = 0xA01;
+    int CONTRACT_LANG = 0xA01;
 
-    int CONTRACT_INFO = 0xA01;
+    int CONTRACT_RUNTIME_CONFIG = 0xA02;
 
     // ...0xA19
     int HASH = 0xB00;
@@ -240,5 +247,22 @@ public interface DataCodes {
     int CONSENSUS_MSGQUEUE_BLOCK_SETTINGS = CONSENSUS_MSGQUEUE | 0x05;
 
     int CONSENSUS_MSGQUEUE_CLIENT_CREDENTIAL_INFO = CONSENSUS_MSGQUEUE | 0x06;
+
+    // ------------------ 共识相关（RAFT） ----------------
+    int CONSENSUS_RAFT = 0x1300;
+
+    int CONSENSUS_RAFT_VIEW_SETTINGS = CONSENSUS_RAFT | 0x01;
+
+    int CONSENSUS_RAFT_NODE_SETTINGS = CONSENSUS_RAFT | 0x02;
+
+    int CONSENSUS_RAFT_CLI_INCOMING_SETTINGS = CONSENSUS_RAFT | 0x03;
+
+    int CONSENSUS_RAFT_NETWORK_SETTINGS = CONSENSUS_RAFT | 0x04;
+
+    int CONSENSUS_RAFT_CLI_SETTINGS = CONSENSUS_RAFT | 0x05;
+
+    int CONSENSUS_RAFT_CLIENT_CREDENTIAL_INFO = CONSENSUS_RAFT | 0x06;
+
+    int CONSENSUS_RAFT_SETTINGS_INFO = CONSENSUS_RAFT | 0x07;
 
 }

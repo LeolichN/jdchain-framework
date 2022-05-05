@@ -5,6 +5,7 @@ import com.jd.blockchain.contract.ContractEntrance;
 import com.jd.blockchain.contract.ContractJarUtils;
 import com.jd.blockchain.contract.ContractProcessor;
 import com.jd.blockchain.contract.ContractType;
+import com.jd.blockchain.ledger.ContractLang;
 import com.jd.blockchain.maven.plugins.contract.analysis.asm.ASMClassVisitor;
 import com.jd.blockchain.maven.plugins.contract.analysis.contract.AbstractContract;
 import com.jd.blockchain.maven.plugins.contract.analysis.contract.ContractClass;
@@ -110,6 +111,11 @@ public class MavenPluginContractProcessor implements ContractProcessor {
 
     @Override
     public ContractEntrance analyse(byte[] chainCode) {
+        return null;
+    }
+
+    @Override
+    public String decompileEntranceClass(byte[] chainCode, ContractLang lang) {
         return null;
     }
 

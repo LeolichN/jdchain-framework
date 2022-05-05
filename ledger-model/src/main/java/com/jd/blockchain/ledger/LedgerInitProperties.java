@@ -1,26 +1,11 @@
 package com.jd.blockchain.ledger;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.security.cert.X509Certificate;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TreeMap;
-
 import com.jd.blockchain.ca.CertificateRole;
 import com.jd.blockchain.ca.CertificateUtils;
 import com.jd.blockchain.consts.Global;
 import com.jd.blockchain.crypto.AddressEncoding;
 import com.jd.blockchain.crypto.KeyGenUtils;
 import com.jd.blockchain.crypto.PubKey;
-
 import utils.Bytes;
 import utils.PropertiesUtils;
 import utils.StringUtils;
@@ -28,9 +13,16 @@ import utils.codec.HexUtils;
 import utils.io.FileUtils;
 import utils.net.NetworkAddress;
 
-public class LedgerInitProperties implements Serializable {
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.security.cert.X509Certificate;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
-	private static final String MQ_PROVIDER = "com.jd.blockchain.consensus.mq.MsgQueueConsensusProvider";
+public class LedgerInitProperties implements Serializable {
 
 	private static final long serialVersionUID = 6261483113521649870L;
 
@@ -50,6 +42,14 @@ public class LedgerInitProperties implements Serializable {
 	public static final String CREATED_TIME = "created-time";
 	// 创建时间的格式；
 	public static final String CREATED_TIME_FORMAT = Global.DEFAULT_TIME_FORMAT;
+
+	// 合约运行超时配置
+	public static final String CONTRACT_TIMEOUT = "contract.timeout";
+	// 合约运行超时默认值：1分钟
+	public static final int DEFAULT_CONTRACT_TIMEOUT = 60000;
+	// 合约运行最大相互调用栈深
+	public static final String MAX_STACK_DEPTH = "contract.max-stack-depth";
+	public static final int DEFAULT_MAX_STACK_DEPTH = 100;
 
 	// 角色清单；
 	public static final String ROLES = "security.roles";
@@ -125,6 +125,10 @@ public class LedgerInitProperties implements Serializable {
 
 	private LedgerDataStructure ledgerDataStructure;
 
+	private long contractTimeout;
+
+	private int maxStackDepth;
+
 	public byte[] getLedgerSeed() {
 		return ledgerSeed.clone();
 	}
@@ -155,6 +159,14 @@ public class LedgerInitProperties implements Serializable {
 
 	public LedgerDataStructure getLedgerDataStructure() {
 		return ledgerDataStructure;
+	}
+
+	public long getContractTimeout() {
+		return contractTimeout;
+	}
+
+	public int getMaxStackDepth() {
+		return maxStackDepth;
 	}
 
 	public Properties getConsensusConfig() {
@@ -226,7 +238,7 @@ public class LedgerInitProperties implements Serializable {
 	}
 
 	public static LedgerInitProperties createDefault(byte[] ledgerSeed, String ledgerName, Date createdTime, LedgerDataStructure ledgerDataStructure,
-			Properties consensusConfig, CryptoProperties cryptoProperties) {
+													 Properties consensusConfig, CryptoProperties cryptoProperties) {
 		LedgerInitProperties initProps = new LedgerInitProperties(ledgerSeed);
 		initProps.ledgerName = ledgerName;
 		initProps.createdTime = createdTime.getTime();
@@ -268,15 +280,15 @@ public class LedgerInitProperties implements Serializable {
 		String identityMode = PropertiesUtils.getOptionalProperty(props, IDENTITY_MODE, IdentityMode.KEYPAIR.name());
 		initProps.identityMode = IdentityMode.valueOf(identityMode);
 		X509Certificate[] ledgerCerts = null;
-		if(initProps.identityMode == IdentityMode.CA) {
+		if (initProps.identityMode == IdentityMode.CA) {
 			// 根证书
 			String[] ledgerCAPaths = PropertiesUtils.getRequiredProperty(props, CA_PATH).split(",");
-			if(ledgerCAPaths.length == 0) {
+			if (ledgerCAPaths.length == 0) {
 				throw new LedgerInitException("root-ca-path is empty");
 			}
 			ledgerCerts = new X509Certificate[ledgerCAPaths.length];
 			String[] ledgersCAs = new String[ledgerCAPaths.length];
-			for(int i = 0; i<ledgerCAPaths.length; i++) {
+			for (int i = 0; i < ledgerCAPaths.length; i++) {
 				ledgersCAs[i] = FileUtils.readText(ledgerCAPaths[i]);
 				ledgerCerts[i] = CertificateUtils.parseCertificate(ledgersCAs[i]);
 				// 时间有效性校验
@@ -299,6 +311,9 @@ public class LedgerInitProperties implements Serializable {
 		} catch (ParseException ex) {
 			throw new IllegalArgumentException(ex.getMessage(), ex);
 		}
+		// 合约运行时参数
+		initProps.contractTimeout = PropertiesUtils.getIntOptional(props, CONTRACT_TIMEOUT, DEFAULT_CONTRACT_TIMEOUT);
+		initProps.maxStackDepth = PropertiesUtils.getIntOptional(props, MAX_STACK_DEPTH, DEFAULT_MAX_STACK_DEPTH);
 
 		String dataStructure = PropertiesUtils.getOptionalProperty(props, LEDGER_DATA_STRUCTURE, LedgerDataStructure.MERKLE_TREE.name());
 		initProps.ledgerDataStructure = LedgerDataStructure.valueOf(dataStructure);
@@ -329,6 +344,10 @@ public class LedgerInitProperties implements Serializable {
 
 		// 解析共识相关的属性；
 		initProps.consensusProvider = PropertiesUtils.getRequiredProperty(props, CONSENSUS_SERVICE_PROVIDER);
+		ConsensusTypeEnum consensusType = ConsensusTypeEnum.of(initProps.consensusProvider);
+		if (consensusType.equals(ConsensusTypeEnum.UNKNOWN)) {
+			throw new IllegalArgumentException(String.format("Property[%s] is unsupported!", CONSENSUS_SERVICE_PROVIDER));
+		}
 		String consensusConfigFilePath = PropertiesUtils.getRequiredProperty(props, CONSENSUS_CONFIG);
 		try {
 			initProps.consensusConfig = FileUtils.readPropertiesResouce(consensusConfigFilePath, baseDirectory);
@@ -356,9 +375,6 @@ public class LedgerInitProperties implements Serializable {
 		if (partCount < 0) {
 			throw new IllegalArgumentException(String.format("Property[%s] is negative!", PART_COUNT));
 		}
-		if(!initProps.consensusProvider.equals(MQ_PROVIDER) && partCount < 4) {
-			throw new IllegalArgumentException(String.format("Property[%s] is less than 4!", PART_COUNT));
-		}
 		GenesisUser[] genesisUsers = new GenesisUserConfig[partCount];
 		int consensusNodeCount = 0;
 		for (int i = 0; i < partCount; i++) {
@@ -371,11 +387,11 @@ public class LedgerInitProperties implements Serializable {
 
 			String pubkeyPathKey = getKeyOfParticipant(i, PART_PUBKEY_PATH);
 			String pubkeyKey = getKeyOfParticipant(i, PART_PUBKEY);
-			String partCAPathKey =getKeyOfParticipant(i, PART_CA_PATH);
+			String partCAPathKey = getKeyOfParticipant(i, PART_CA_PATH);
 			PubKey pubKey;
 			String ca = null;
 			boolean isGw = false;
-			if(initProps.identityMode == IdentityMode.CA) {
+			if (initProps.identityMode == IdentityMode.CA) {
 				ca = FileUtils.readText(PropertiesUtils.getRequiredProperty(props, partCAPathKey));
 				X509Certificate cert = CertificateUtils.parseCertificate(ca);
 				CertificateUtils.checkValidity(cert);
@@ -412,8 +428,8 @@ public class LedgerInitProperties implements Serializable {
 					: RolesPolicy.valueOf(strPartiPolicy.trim());
 			policy = policy == null ? RolesPolicy.UNION : policy;
 
-			if(!isGw) {
-				consensusNodeCount ++;
+			if (!isGw) {
+				consensusNodeCount++;
 				// 解析参与方的网络配置参数；
 				String initializerHostKey = getKeyOfParticipant(i, PART_INITIALIZER_HOST);
 				String initializerHost = PropertiesUtils.getRequiredProperty(props, initializerHostKey);
@@ -433,8 +449,8 @@ public class LedgerInitProperties implements Serializable {
 			initProps.addConsensusParticipant(parti);
 			genesisUsers[i] = new GenesisUserConfig(pubKey, ca, partiRoles, policy);
 		}
-		if (!initProps.consensusProvider.equals(MQ_PROVIDER) && consensusNodeCount < 4) {
-			throw new IllegalArgumentException(String.format("Consensus peer nodes size [%s] is less than 4!", consensusNodeCount));
+		if (partCount < consensusType.getMinimalNodeSize()) {
+			throw new IllegalArgumentException(String.format("Consensus peer nodes size [%s] is less than [%s]!", consensusNodeCount, consensusType.getMinimalNodeSize()));
 		}
 		initProps.setGenesisUsers(genesisUsers);
 
@@ -537,7 +553,6 @@ public class LedgerInitProperties implements Serializable {
 	 * 参与方配置信息；
 	 *
 	 * @author huanghaiquan
-	 *
 	 */
 	public static class ParticipantProperties implements ParticipantNode, Serializable {
 

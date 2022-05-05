@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>com.jd.blockchain</groupId>
 		<artifactId>jdchain-framework</artifactId>
-		<version>1.6.2.RELEASE</version>
+		<version>1.6.3.RELEASE</version>
 	</parent>
 	<artifactId>consensus-framework</artifactId>
 
@@ -28,5 +28,10 @@
 			<groupId>com.jd.utils</groupId>
 			<artifactId>utils-common</artifactId>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>com.jd.blockchain</groupId>
+            <artifactId>ledger-model</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>
