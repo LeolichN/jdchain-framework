@@ -88,12 +88,16 @@ public class ChameleonCryptoService implements CryptoService{
 
         @Override
         public boolean isEncryptionAlgorithm(short algorithmCode) {
+            if(ChameleonAlgorithm.SM3_NEW.code() == algorithmCode
+                    || ChameleonAlgorithm.CHAMELEON.code() == algorithmCode){
+                return true;
+            }
             return false;
         }
 
         @Override
         public boolean isEncryptionAlgorithm(CryptoAlgorithm algorithm) {
-            return false;
+            return isEncryptionAlgorithm(algorithm.code());
         }
 
         @Override
@@ -118,7 +122,7 @@ public class ChameleonCryptoService implements CryptoService{
 
         @Override
         public boolean isAsymmetricEncryptionAlgorithm(CryptoAlgorithm algorithm) {
-            return false;
+            return isSignatureAlgorithm(algorithm) && isEncryptionAlgorithm(algorithm);
         }
     }
 }

@@ -66,6 +66,7 @@ public interface DataCodes {
     int TX_OP_DATA_ACC_REG = 0x320;
     int TX_OP_DATA_ACC_SET = 0x321;
     int TX_OP_DATA_ACC_SET_KV = 0x322;
+    int TX_OP_DATA_ACC_CHECK_ONCE = 0x323;
 
     int TX_OP_CONTRACT_DEPLOY = 0x330;
     int TX_OP_CONTRACT_UPDATE = 0x331;

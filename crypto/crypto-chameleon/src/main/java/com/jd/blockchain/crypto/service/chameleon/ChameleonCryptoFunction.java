@@ -8,6 +8,7 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import utils.crypto.chameleon.ChameleonPrivateKeyParameters;
 import utils.crypto.chameleon.ChameleonPublicKeyParameters;
 import utils.crypto.chameleon.ChameleonUtils;
+import utils.io.BytesUtils;
 
 import java.lang.reflect.Array;
 import java.security.PrivateKey;
@@ -24,10 +25,10 @@ import static com.jd.blockchain.crypto.CryptoKeyType.PUBLIC;
  * @create 2022-03-21 16:43
  * @since 0.1.0
  **/
-public class ChameleonCryptoFunction implements SignatureFunction, CASignatureFunction {
+public class ChameleonCryptoFunction implements SignatureFunction, CASignatureFunction,AsymmetricEncryptionFunction {
     private static final CryptoAlgorithm CHAMELEON = ChameleonAlgorithm.CHAMELEON;
-    private static final int ECPOINT_SIZE = 65;
-    private static final int PRIVKEY_SIZE = 32;
+    private static final int ECPOINT_SIZE = 130;
+    private static final int PRIVKEY_SIZE = 64;
     private static final int SIGNATUREDIGEST_SIZE = 64;
     private static final int HASHDIGEST_SIZE = 32;
 
@@ -50,8 +51,28 @@ public class ChameleonCryptoFunction implements SignatureFunction, CASignatureFu
     }
 
     @Override
+    public byte[] encrypt(PubKey pubKey, byte[] data) {
+        byte[] rawPubKeyBytes = pubKey.getRawKeyBytes();
+        // 验证原始公钥长度为65字节
+        if (rawPubKeyBytes.length != ECPOINT_SIZE) {
+            throw new CryptoException("This key has wrong format!");
+        }
+        if (pubKey.getAlgorithm() != CHAMELEON.code()){
+            throw new CryptoException("The is not chameleon public key!");
+        }
+        return new byte[0];
+    }
+
+    @Override
+    public byte[] decrypt(PrivKey privKey, byte[] cipherBytes) {
+        return new byte[0];
+    }
+
+    @Override
     public PubKey retrievePubKey(PrivKey privKey) {
-        return null;
+        byte[] rawPrivKeyBytes = privKey.getRawKeyBytes();
+        byte[] rawPubKeyBytes = ChameleonUtils.retrievePublicKey(rawPrivKeyBytes);
+        return DefaultCryptoEncoding.encodePubKey(CHAMELEON,rawPubKeyBytes);
     }
 
     @Override
@@ -157,23 +178,16 @@ public class ChameleonCryptoFunction implements SignatureFunction, CASignatureFu
 
         byte[] privKeyBytesK = privKeyParams.getK().toByteArray();
         byte[] privKeyBytesX = privKeyParams.getX().toByteArray();
-        byte[] privKeyBytes = concat(updateByteArray(privKeyBytesK,32),updateByteArray(privKeyBytesX,32));
+        byte[] privKeyBytes = BytesUtils.concat(updateByteArray(privKeyBytesK,32),updateByteArray(privKeyBytesX,32));
 
         byte[] pubKeyBytesK = pubKeyParams.getK().getEncoded(false);
         byte[] pubKeyBytesY = pubKeyParams.getY().getEncoded(false);
-        byte[] pubKeyBytes =concat(pubKeyBytesK,pubKeyBytesY);
+        byte[] pubKeyBytes = BytesUtils.concat(pubKeyBytesK,pubKeyBytesY);
 
         PrivKey privKey = DefaultCryptoEncoding.encodePrivKey(CHAMELEON, privKeyBytes);
         PubKey pubKey = DefaultCryptoEncoding.encodePubKey(CHAMELEON, pubKeyBytes);
 
         return new AsymmetricKeypair(pubKey, privKey);
-    }
-
-    private byte[] concat(byte[] array1, byte[] array2) {
-        byte[] newArray = (byte[]) Array.newInstance(byte.class, array1.length + array2.length);
-        System.arraycopy(array1, 0, newArray, 0, array1.length);
-        System.arraycopy(array2, 0, newArray, array1.length, array2.length);
-        return newArray;
     }
 
     private byte[] updateByteArray(byte[] sourceArray,int arraySize){

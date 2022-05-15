@@ -5,6 +5,7 @@ import com.jd.binaryproto.DataField;
 import com.jd.binaryproto.PrimitiveType;
 import com.jd.blockchain.consts.DataCodes;
 
+import com.jd.blockchain.transaction.DataAccountChameleonOnceCheck;
 import utils.Bytes;
 
 @DataContract(code= DataCodes.TX_OP_DATA_ACC_SET)
@@ -28,6 +29,12 @@ public interface DataAccountKVSetOperation extends Operation {
 
 		@DataField(order=3, primitiveType=PrimitiveType.INT64)
 		long getExpectedVersion();
+		
+		@DataField(order = 4,primitiveType = PrimitiveType.BOOLEAN)
+		boolean chameleonHash();
+
+		@DataField(order = 5,refContract = true)
+		DataAccountChameleonOnceCheck hashChameleonOnce();
 	}
 
 }
