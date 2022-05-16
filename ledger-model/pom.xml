@@ -28,11 +28,6 @@
 		</dependency>
 		<dependency>
 			<groupId>com.jd.blockchain</groupId>
-			<artifactId>crypto-chameleon</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.jd.blockchain</groupId>
 			<artifactId>crypto-binary-protocal</artifactId>
 			<version>${project.version}</version>
 		</dependency>
