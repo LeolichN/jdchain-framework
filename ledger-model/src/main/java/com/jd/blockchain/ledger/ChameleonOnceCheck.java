@@ -14,7 +14,7 @@ import java.math.BigInteger;
 public class ChameleonOnceCheck implements DataAccountChameleonOnceCheck {
 
     @Override
-    public BytesValue hashDataOnce(byte[] data, byte[] pubKey) {
-        return TypedValue.fromBytes(ChameleonUtils.sign(data, BigInteger.ONE,pubKey));
+    public byte[] hashDataOnce(byte[] data, byte[] pubKey) {
+        return ChameleonUtils.sign(data, BigInteger.ONE,pubKey);
     }
 }

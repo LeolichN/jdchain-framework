@@ -16,5 +16,5 @@ import com.jd.blockchain.ledger.BytesValue;
 public interface DataAccountChameleonOnceCheck {
 
     @DataField(order = 0,primitiveType = PrimitiveType.BYTES)
-    BytesValue hashDataOnce(byte[] data,byte[] pubKey);
+    byte[] hashDataOnce(byte[] data,byte[] pubKey);
 }
