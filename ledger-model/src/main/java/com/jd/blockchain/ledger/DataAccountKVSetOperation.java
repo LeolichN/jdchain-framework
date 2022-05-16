@@ -32,9 +32,6 @@ public interface DataAccountKVSetOperation extends Operation {
 		
 		@DataField(order = 4,primitiveType = PrimitiveType.BOOLEAN)
 		boolean chameleonHash();
-
-		@DataField(order = 5,refContract = true)
-		DataAccountChameleonOnceCheck hashChameleonOnce();
 	}
 
 }

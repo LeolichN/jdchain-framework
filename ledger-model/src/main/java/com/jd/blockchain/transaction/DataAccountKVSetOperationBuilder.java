@@ -86,6 +86,17 @@ public interface DataAccountKVSetOperationBuilder {
 	DataAccountKVSetOperationBuilder setText(String key, String value, long expVersion);
 
 	/**
+	 * 写入文本键值；
+	 *
+	 * @param key        键；
+	 * @param value      值；String格式
+	 * @param expVersion 预期的当前版本；如果版本不匹配，则写入失败；
+	 * @param isChameleonHash 是否参与账户值的哈希计算
+	 * @return
+	 */
+	DataAccountKVSetOperationBuilder setText(String key, String value, long expVersion,boolean isChameleonHash);
+
+	/**
 	 * 写入JSON键值；
 	 *
 	 * @param key        键；

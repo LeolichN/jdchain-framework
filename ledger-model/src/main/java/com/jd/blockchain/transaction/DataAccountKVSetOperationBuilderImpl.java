@@ -48,6 +48,13 @@ public class DataAccountKVSetOperationBuilderImpl implements DataAccountKVSetOpe
 	}
 
 	@Override
+	public DataAccountKVSetOperationBuilder setText(String key, String value, long expVersion,boolean isChameleonHash) {
+		BytesValue bytesValue = TypedValue.fromText(value);
+		operation.set(key, bytesValue, expVersion,isChameleonHash);
+		return this;
+	}
+
+	@Override
 	public DataAccountKVSetOperationBuilder setBytes(String key, Bytes value, long expVersion) {
 		BytesValue bytesValue = TypedValue.fromBytes(value);
 		operation.set(key, bytesValue, expVersion);

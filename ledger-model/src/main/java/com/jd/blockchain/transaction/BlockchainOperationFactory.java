@@ -415,6 +415,13 @@ public class BlockchainOperationFactory implements ClientOperator, LedgerInitOpe
 		}
 
 		@Override
+		public DataAccountKVSetOperationBuilder setText(String key, String value, long expVersion, boolean isChameleonHash) {
+			innerBuilder.setText(key, value, expVersion,isChameleonHash);
+			setOperation();
+			return this;
+		}
+
+		@Override
 		public DataAccountKVSetOperationBuilder setInt64(String key, long value, long expVersion) {
 			innerBuilder.setInt64(key, value, expVersion);
 			setOperation();

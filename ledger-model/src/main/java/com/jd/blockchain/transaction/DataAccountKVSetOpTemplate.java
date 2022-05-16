@@ -56,6 +56,14 @@ public class DataAccountKVSetOpTemplate implements DataAccountKVSetOperation {
 		kvset.put(key, kvdata);
 	}
 
+	public void set(String key, BytesValue value, long expVersion,boolean isChmeleonHash) {
+		if (kvset.containsKey(key)) {
+			throw new IllegalArgumentException("Cann't set the same key repeatedly!");
+		}
+		KVData kvdata = new KVData(key, value, expVersion,isChmeleonHash);
+		kvset.put(key, kvdata);
+	}
+
 	public void set(KVData kvData) {
 		if (kvset.containsKey(kvData.getKey())) {
 			throw new IllegalArgumentException("Cann't set the same key repeatedly!");

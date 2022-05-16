@@ -13,8 +13,6 @@ public class KVData implements KVWriteEntry {
 
 	private boolean chameleonHash;
 
-	private DataAccountChameleonOnceCheck checker;
-
 	public KVData(String key, BytesValue value, long expectedVersion) {
 		this.key = key;
 		this.value = value;
@@ -22,12 +20,11 @@ public class KVData implements KVWriteEntry {
 		this.chameleonHash = false;
 	}
 
-	public KVData(String key, BytesValue value, long expectedVersion,boolean chameleonHash,DataAccountChameleonOnceCheck checker) {
+	public KVData(String key, BytesValue value, long expectedVersion,boolean chameleonHash) {
 		this.key = key;
 		this.value = value;
 		this.expectedVersion = expectedVersion;
 		this.chameleonHash = chameleonHash;
-		this.checker = checker;
 	}
 
 	@Override
@@ -48,10 +45,5 @@ public class KVData implements KVWriteEntry {
 	@Override
 	public boolean chameleonHash() {
 		return chameleonHash;
-	}
-
-	@Override
-	public DataAccountChameleonOnceCheck hashChameleonOnce(){
-		return checker;
 	}
 }
