@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>com.jd.blockchain</groupId>
 		<artifactId>contract</artifactId>
-		<version>1.6.3.RELEASE</version>
+		<version>1.6.4.RELEASE</version>
 	</parent>
 	<artifactId>contract-starter</artifactId>
 
@@ -20,14 +20,18 @@
 			<groupId>com.jd.blockchain</groupId>
 			<artifactId>crypto-classic</artifactId>
 			<version>${project.version}</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>com.jd.blockchain</groupId>
 			<artifactId>crypto-sm</artifactId>
 			<version>${project.version}</version>
-			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.blockchain</groupId>
+			<artifactId>crypto-adv</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 </project>
